@@ -51,10 +51,13 @@
         <label for="phone" class="form-label">Ingresa tu número de celular:</label>
         <input type="text" id="phone" class="form-control" placeholder="Ej. 3001234567" />
         <button class="btn btn-primary w-100 mt-3" onclick="verifyPhone()" id="verifyBtn">Verificar</button>
+        <br>
+        <br>
+        <small> Si tienes problemas con la confirmación de la asistencia por favor contáctanos.</small>    
       </div>
 
       <div id="step2" class="d-none">
-        <p><strong>Invitación para <span id="guestAlias"></span></strong>, tienes <strong><span id="guestCupos"></span></strong> cupos disponibles.</p>
+        <p>Invitación para <strong><span id="guestAlias"></span></strong>, tienes <strong><span id="guestCupos"></span></strong> cupos disponibles.</p>
         <form id="confirmForm">
           <div id="attendeesFields"></div>
           <button type="submit" id="submitBtn" class="btn btn-primary w-100 mt-3">Confirmar Asistencia</button>
