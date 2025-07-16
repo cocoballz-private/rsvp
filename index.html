@@ -59,49 +59,55 @@
   </div>
 
   <script>
-    const data = [
-      { telefono: "3001234567", nombre: "Juan Pérez", cupos: 3, confirmado: false },
-      { telefono: "3109876543", nombre: "Luisa Gómez", cupos: 2, confirmado: false },
-    ];
-
     let currentGuest = null;
 
-    function verifyPhone() {
-      document.getElementById("errorMsg").classList.add("hidden");
+    async function verifyPhone() {
       const phone = document.getElementById("phone").value.trim();
-      const guest = data.find(g => g.telefono === phone);
+      document.getElementById("errorMsg").classList.add("hidden");
 
-      if (guest && !guest.confirmado) {
-        currentGuest = guest;
-        document.getElementById("guestName").innerText = guest.nombre;
-        document.getElementById("guestCupos").innerText = guest.cupos;
+      try {
+        const res = await fetch(`https://script.google.com/macros/s/AKfycbygT4d3XHxSVp1ci9qcBCBjF8-rOkA0bOCf2-dHQs-7rVsP2-4iBX1rAc6w7haS1fdbqg/exec?telefono=${phone}`);
+        const result = await res.json();
 
-        const fields = document.getElementById("attendeesFields");
-        fields.innerHTML = "";
+        if (result.status === 'ok' && !result.confirmado) {
+          currentGuest = {
+            telefono: phone,
+            nombre: result.nombre,
+            cupos: result.cupos
+          };
 
-        for (let i = 0; i < guest.cupos; i++) {
-          const label = document.createElement("label");
-          label.textContent = `Asistente ${i + 1}`;
+          document.getElementById("guestName").innerText = result.nombre;
+          document.getElementById("guestCupos").innerText = result.cupos;
 
-          const input = document.createElement("input");
-          input.type = "text";
-          input.required = true;
-          input.name = `asistente_${i + 1}`;
+          const fields = document.getElementById("attendeesFields");
+          fields.innerHTML = "";
 
-          if (i === 0) {
-            input.value = guest.nombre;
-            input.readOnly = true;
-            input.classList.add("readonly");
+          for (let i = 0; i < result.cupos; i++) {
+            const label = document.createElement("label");
+            label.textContent = `Asistente ${i + 1}`;
+
+            const input = document.createElement("input");
+            input.type = "text";
+            input.required = true;
+            input.name = `asistente_${i + 1}`;
+            if (i === 0) {
+              input.value = result.nombre;
+              input.readOnly = true;
+              input.classList.add("readonly");
+            }
+
+            fields.appendChild(label);
+            fields.appendChild(input);
           }
 
-          fields.appendChild(label);
-          fields.appendChild(input);
+          document.getElementById("step1").classList.add("hidden");
+          document.getElementById("step2").classList.remove("hidden");
+        } else {
+          document.getElementById("errorMsg").classList.remove("hidden");
         }
-
-        document.getElementById("step1").classList.add("hidden");
-        document.getElementById("step2").classList.remove("hidden");
-      } else {
-        document.getElementById("errorMsg").classList.remove("hidden");
+      } catch (err) {
+        alert("Hubo un error al consultar el número.");
+        console.error(err);
       }
     }
 
@@ -122,7 +128,7 @@
       };
 
       try {
-        const response = await fetch("https://script.google.com/macros/s/AKfycbwP1-_4KtuBiPwPGFJbZZ7ALRCD1UXrpQgZIqnCwY1cYX5CPSh-6M2rG9fG2-zb6TXzZA/exec", {
+        const response = await fetch("https://script.google.com/macros/s/AKfycbygT4d3XHxSVp1ci9qcBCBjF8-rOkA0bOCf2-dHQs-7rVsP2-4iBX1rAc6w7haS1fdbqg/exec", {
           method: "POST",
           body: JSON.stringify(payload),
           headers: {
