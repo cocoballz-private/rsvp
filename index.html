@@ -6,56 +6,93 @@
   <title>Confirmación de Asistencia</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      max-width: 600px;
-      margin: 2rem auto;
-      padding: 1rem;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f8f9fa;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem;
+    }
+    h2 {
+      color: #004085;
+      margin-bottom: 1.5rem;
+    }
+    .card {
+      background: white;
+      border-radius: 8px;
+      padding: 2rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 500px;
     }
     label {
       display: block;
       margin-top: 1rem;
     }
-    input, textarea {
+    input, textarea, button {
       width: 100%;
-      padding: 0.5rem;
+      padding: 0.6rem;
       margin-top: 0.5rem;
+      font-size: 1rem;
     }
     button {
-      margin-top: 1rem;
-      padding: 0.75rem;
-      width: 100%;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:disabled {
+      background-color: #6c757d;
+      cursor: not-allowed;
     }
     .hidden { display: none; }
     .readonly {
-      background-color: #f0f0f0;
+      background-color: #e9ecef;
+    }
+    .spinner {
+      display: inline-block;
+      width: 1rem;
+      height: 1rem;
+      border: 2px solid #fff;
+      border-top: 2px solid #007bff;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-left: 0.5rem;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
     }
   </style>
 </head>
 <body>
   <h2>Confirmación de Asistencia</h2>
 
-  <div id="step1">
-    <label for="phone">Ingresa tu número de celular:</label>
-    <input type="text" id="phone" placeholder="Ej. 3001234567" />
-    <button onclick="verifyPhone()">Verificar</button>
-  </div>
+  <div class="card">
+    <div id="step1">
+      <label for="phone">Ingresa tu número de celular:</label>
+      <input type="text" id="phone" placeholder="Ej. 3001234567" />
+      <button onclick="verifyPhone()">Verificar</button>
+    </div>
 
-  <div id="step2" class="hidden">
-    <p><strong>Hola <span id="guestName"></span></strong>, tienes <strong><span id="guestCupos"></span></strong> cupos disponibles.</p>
-    <form id="confirmForm">
-      <div id="attendeesFields"></div>
-      <label for="email">Correo electrónico (opcional):</label>
-      <input type="email" id="email" placeholder="Ej. tu@email.com" />
-      <button type="submit">Confirmar Asistencia</button>
-    </form>
-  </div>
+    <div id="step2" class="hidden">
+      <p><strong>Invitación para <span id="guestAlias"></span></strong>, tienes <strong><span id="guestCupos"></span></strong> cupos disponibles.</p>
+      <form id="confirmForm">
+        <div id="attendeesFields"></div>
+        <label for="email">Correo electrónico (opcional):</label>
+        <input type="email" id="email" placeholder="Ej. tu@email.com" />
+        <button type="submit" id="submitBtn">Confirmar Asistencia</button>
+      </form>
+    </div>
 
-  <div id="successMsg" class="hidden">
-    <p>✅ Confirmación registrada. ¡Gracias por confirmar tu asistencia!</p>
-  </div>
+    <div id="successMsg" class="hidden">
+      <p>✅ Confirmación registrada. ¡Gracias por confirmar tu asistencia!</p>
+    </div>
 
-  <div id="errorMsg" class="hidden">
-    <p style="color:red;">❌ Número no encontrado o ya confirmaste asistencia.</p>
+    <div id="errorMsg" class="hidden">
+      <p style="color:red;">❌ Número no encontrado o ya confirmaste asistencia.</p>
+    </div>
   </div>
 
   <script>
@@ -73,16 +110,17 @@
           currentGuest = {
             telefono: phone,
             nombre: result.nombre,
+            alias: result.alias || result.nombre,
             cupos: result.cupos
           };
 
-          document.getElementById("guestName").innerText = result.nombre;
-          document.getElementById("guestCupos").innerText = result.cupos;
+          document.getElementById("guestAlias").innerText = currentGuest.alias;
+          document.getElementById("guestCupos").innerText = currentGuest.cupos;
 
           const fields = document.getElementById("attendeesFields");
           fields.innerHTML = "";
 
-          for (let i = 0; i < result.cupos; i++) {
+          for (let i = 0; i < currentGuest.cupos; i++) {
             const label = document.createElement("label");
             label.textContent = `Asistente ${i + 1}`;
 
@@ -91,7 +129,7 @@
             input.required = true;
             input.name = `asistente_${i + 1}`;
             if (i === 0) {
-              input.value = result.nombre;
+              input.value = currentGuest.nombre;
               input.readOnly = true;
               input.classList.add("readonly");
             }
@@ -113,6 +151,9 @@
 
     document.getElementById("confirmForm").addEventListener("submit", async function(e) {
       e.preventDefault();
+      const submitBtn = document.getElementById("submitBtn");
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = 'Enviando... <span class="spinner"></span>';
 
       const asistentes = Array.from(document.querySelectorAll("#attendeesFields input"))
         .map(input => input.value.trim());
@@ -143,6 +184,9 @@
       } catch (err) {
         alert("Hubo un error al enviar los datos.");
         console.error(err);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerText = "Confirmar Asistencia";
       }
     });
   </script>
