@@ -48,9 +48,9 @@
     <h2 class="text-primary">Confirmación de Asistencia</h2>
     <div class="card shadow p-4 bg-white">
       <div id="step1">
-        <label for="phone" class="form-label">Ingresa tu número de celular:</label>
-        <input type="text" id="phone" class="form-control" placeholder="Ej. 3001234567" />
-        <button class="btn btn-primary w-100 mt-3" onclick="verifyPhone()" id="verifyBtn">Verificar</button>
+        <div id="errorMsg" class="d-none alert alert-danger mt-3">
+        ❌ Confirmación de la asistencia finalizada.
+        </div>
         <br>
         <br>
         <small> Si tienes problemas con la confirmación de la asistencia por favor contáctanos.</small>    
